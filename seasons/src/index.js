@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import SeasonDisplay from "./SeasonDisplay";
+import Spinner from "./Spinner";
 
 /**
  * 【クラスコンポーネント】
@@ -21,13 +22,15 @@ import SeasonDisplay from "./SeasonDisplay";
  * ・クラスベースのコンポーネント内で定義できる、オプションの関数。
  * ・定義すれば、React内部で自動的にしかるべきタイミングで実行される。
  * ・ライフサイクルの流れ
- * constructor() -> render() -> content visible on screen -> componentDidMount() -> sit and wait for updating
- *   -> updated -> render() -> componentDidUpdate() -> sit and wait for unmount -> componentWillUnmount()
+ *   constructor() -> render() -> content visible on screen -> componentDidMount() -> sit and wait for updating
+ *   -> component gets updated by calling setState function -> render() -> componentDidUpdate()
+ *   -> sit and wait for unmount -> componentWillUnmount()
  *
  *
  */
 class App extends React.Component {
-    // constructorメソッドを使って初期化する事も可能だが、この方が簡潔に書ける。
+    // stateの初期化
+    // constructorメソッドを使ってstateを初期化する事も可能だが、この方が簡潔に書ける。
     // このコードはBabelによって、constructorメソッドでの記述に変換される。
     state = {lat: null, errorMessage: null};
 
@@ -42,17 +45,25 @@ class App extends React.Component {
         console.log('component did update');
     }
 
+    renderContent() {
+        if (this.state.lat) {
+            return <SeasonDisplay lat={this.state.lat}/>;
+        }
+        if (this.state.errorMessage) {
+            return <div>Error: {this.state.errorMessage}</div>;
+        }
+
+        return <Spinner message="please accept location request"/>;
+    }
+
     // stateが更新されるたびに実行される
     // renderメソッドでは、JSXを返す処理のみ記述するのが基本
     render() {
-        if (this.state.lat) {
-            return <SeasonDisplay lat={this.state.lat} />;
-        }
-        if (this.state.errorMessage) {
-            return (<div>Error: {this.state.errorMessage}</div>);
-        }
-
-        return (<div>loading...</div>);
+        return (
+            <div className="border red">
+                {this.renderContent()}
+            </div>
+        );
     }
 }
 
