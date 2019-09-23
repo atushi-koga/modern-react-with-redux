@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SeasonDisplay from "./SeasonDisplay";
 
 /**
- * 【クラスコンポーネントのルール】
- * 1. JavaScript クラスである事
- * 2. React.Componentを継承している事
- * 3. JSXを返すrenderメソッドを定義している事
+ * 【クラスコンポーネント】
+ * 1. JavaScript クラスである
+ * 2. React.Component を継承する
+ * 3. JSXを返すrenderメソッドを定義する
+ * 4. 初期化処理が必要ならば、'constructor'メソッドを定義し、その中で'super'メソッドを実行した後に処理を実装する
  *
  * 【state】
  * ・stateはコンポーネントに関連したデータを含むJSオブジェクト
@@ -13,29 +15,40 @@ import ReactDOM from 'react-dom';
  * ・stateはコンポーネントが最初に生成された時に、初期化されなければならない
  * ・stateは'setState'メソッドを通じてのみ更新可能
  * ・'setState'メソッドには、追加・更新したいプロパティのみをセットすれば良い（変更を行わないプロパティは記述不要）
+ * ・プロパティ名である'state'は変更不可（myStateなど）
+ *
+ * 【Component Life Cycle】
+ * ・クラスベースのコンポーネント内で定義できる、オプションの関数。
+ * ・定義すれば、React内部で自動的にしかるべきタイミングで実行される。
+ * ・ライフサイクルの流れ
+ * constructor() -> render() -> content visible on screen -> componentDidMount() -> sit and wait for updating
+ *   -> updated -> render() -> componentDidUpdate() -> sit and wait for unmount -> componentWillUnmount()
+ *
+ *
  */
 class App extends React.Component {
-    constructor(props) {
-        super(props);
+    // constructorメソッドを使って初期化する事も可能だが、この方が簡潔に書ける。
+    // このコードはBabelによって、constructorメソッドでの記述に変換される。
+    state = {lat: null, errorMessage: null};
 
-        this.state = {lat: null, errorMessage: null};
-
+    componentDidMount() {
         window.navigator.geolocation.getCurrentPosition(
-            position => {
-                this.setState({lat: position.coords.latitude});
-            },
-            err => {
-                this.setState({errorMessage: err.message})
-            }
+            position => this.setState({lat: position.coords.latitude}),
+            err => this.setState({errorMessage: err.message})
         );
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('component did update');
+    }
+
     // stateが更新されるたびに実行される
+    // renderメソッドでは、JSXを返す処理のみ記述するのが基本
     render() {
-        if(this.state.lat){
-            return (<div>Latitude: {this.state.lat}</div>); 
+        if (this.state.lat) {
+            return <SeasonDisplay lat={this.state.lat} />;
         }
-        if(this.state.errorMessage){
+        if (this.state.errorMessage) {
             return (<div>Error: {this.state.errorMessage}</div>);
         }
 
