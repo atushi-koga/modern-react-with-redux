@@ -1,9 +1,14 @@
 import React from 'react';
 
+/**
+ * 【UnControlled vs Controlled Element】
+ * ・フォームに入力されたデータは、ReactではDOM上で管理するのではなく、
+ *   アプリケーション側(state)で管理する。 -> 取得、更新が容易
+ *
+ *
+ */
 class SearchBar extends React.Component {
-    onInputChange(event){
-        console.log(event.target.value);
-    }
+    state = {term: ''};
 
     render() {
         return (
@@ -12,7 +17,8 @@ class SearchBar extends React.Component {
                     <div className="ui field">
                         <label>Image Search</label>
                         <input type="text"
-                               onChange={this.onInputChange}
+                               value={this.state.term}
+                               onChange={(e) => {this.setState({term: e.target.value})}}
                         />
                     </div>
                 </form>
